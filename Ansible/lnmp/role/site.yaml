@@ -1,0 +1,12 @@
+---
+- hosts: php
+  roles:
+  - php
+
+- hosts: nginx
+  roles:
+  - nginx
+
+- hosts: mysql
+  roles:
+  - mariadb

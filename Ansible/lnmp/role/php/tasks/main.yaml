@@ -1,0 +1,23 @@
+---
+- name: install PHP Package
+  yum: name={{ item }}  state=latest
+  with_items:
+  - php
+  - php-fpm
+  - php-mysql
+  - php-gd
+  - gd
+
+- name: copy php-fpm www.conf
+  template:
+    src=www.conf.j2 dest=/etc/php-fpm.d/www.conf
+  notify: reload php-fpm
+
+- name: copy mysql.php test
+  template:
+    src=mysql.php  dest=/php
+  notify: reload php-fpm
+
+- name: start php-fpm
+  service: name=php-fpm state=started enabled=yes
+

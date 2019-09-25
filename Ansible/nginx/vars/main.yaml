@@ -1,0 +1,2 @@
+worker_connections: 10240
+nginx_port: 8080
