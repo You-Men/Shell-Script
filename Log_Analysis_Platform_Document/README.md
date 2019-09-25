@@ -8,15 +8,11 @@
 
 ​	软件包及版本
 
-![1567781780877](/tmp/1567781780877.png)
-
 | IP            | hostname | 软件                    | 内存要求 |
 | ------------- | -------- | ----------------------- | -------- |
 | 192.168.122.3 | elk-1    | Elasticsearch、Logstash | 2G及以上 |
 | 192.168.122.4 | Kibana   | Kibana                  | 1G及以上 |
 | 192.168.122.5 | Filebeat | Filebeat                | 1G及以上 |
-
-
 
 ​		注意事项：  
 
@@ -147,10 +143,6 @@ curl  -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 ```
 		curl -XGET 'elk-1:9200/_cluster/health?pretty'
 ```
-
-![1567784281469](/tmp/1567784281469.png)
-
-
 
 
 
