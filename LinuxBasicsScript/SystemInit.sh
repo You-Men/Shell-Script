@@ -1,15 +1,44 @@
 #!/usr/bin/env bash
-# *****************
 # Author: ZhouJian
+# Mail: 18621048481@163.com
 # Time: 2019-9-3
 # Describe: CentOS 7 Initialization Script
+clear
+echo -ne "\\033[0;33m"
+cat<<EOT
+                                  _oo0oo_
+                                 088888880
+                                 88" . "88
+                                 (| -_- |)
+                                  0\\ = /0
+                               ___/'---'\\___
+                             .' \\\\\\\\|     |// '.
+                            / \\\\\\\\|||  :  |||// \\\\
+                           /_ ||||| -:- |||||- \\\\
+                          |   | \\\\\\\\\\\\  -  /// |   |
+                          | \\_|  ''\\---/''  |_/ |
+                          \\  .-\\__  '-'  __/-.  /
+                        ___'. .'  /--.--\\  '. .'___
+                     ."" '<  '.___\\_<|>_/___.' >'  "".
+                    | | : '-  \\'.;'\\ _ /';.'/ - ' : | |
+                    \\  \\ '_.   \\_ __\\ /__ _/   .-' /  /
+                ====='-.____'.___ \\_____/___.-'____.-'=====
+                                  '=---='
 
-# *************************************************************
+
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                建议系统                    CentOS7
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             PS：请尽量使用纯净的CentOS7系统，我们会在服务器安装
+    [python3.6、Node、Openresty、MySQL57、Redis3、Dnsmasq、Docker、RabbitMQ]
+EOT
+echo -ne "\\033[m"
+
 init_hostname() {
 while read -p "请输入您想设定的主机名：" name
 do
 	if [ -z "$name" ];then
-		echo "您没有输入内容，请重新输入"
+		echo -e "\033[31m 您没有输入内容，请重新输入 \033[0m"
 		continue
 	fi
 	read -p "您确认使用该主机名吗？[y/n]: " var
@@ -22,29 +51,18 @@ done
 }
 
 
-# ************************************************************
-init_service() {
-# Close Filewalld
-echo "关闭防火墙"
+init_security() {
 systemctl stop firewalld
-systemctl disable firewalld
-
-# Close SELinux
-echo "关闭selinux"
+systemctl disable firewalld &>/dev/null
 setenforce 0
-sed -ri '/^SELINUX=/ s/enforcing/disabled/'  /etc/selinux/config
-
-echo "解决sshd远程连接慢的问题"
-sed -ri '/^GSSAPIAu/ s/yes/no/' /etc/ssh/sshd_config
-sed -ri '/^#UseDNS/ {s/^#//;s/yes/no/}' /etc/ssh/sshd_config
-
+sed -i '/^SELINUX=/ s/enforcing/disabled/'  /etc/selinux/config
+sed -i '/^GSSAPIAu/ s/yes/no/' /etc/ssh/sshd_config
+sed -i '/^#UseDNS/ {s/^#//;s/yes/no/}' /etc/ssh/sshd_config
 systemctl enable sshd crond &> /dev/null
+echo -e "\033[32m [安全配置] ==> OK \033[0m"
 }
 
-
-# ***********************************************************
 init_yumsource() {
-echo "配置yum源"
 if [ ! -d /etc/yum.repos.d/backup ];then
 	mkdir /etc/yum.repos.d/backup
 fi
@@ -57,26 +75,23 @@ then
 fi
 	curl -o /etc/yum.repos.d/163.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo &>/dev/null 
 	curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo &>/dev/null
+timedatectl set-timezone Asia/Shanghai
+echo "nameserver 114.114.114.114" > /etc/resolv.conf
+echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+chattr +i /etc/resolv.conf
+
+echo -e "\033[32m [YUM　Source] ==> OK \033[0m"
 }
 
-# ***********************************************************
 init_install_package() {
-echo "安装系统需要的软件，请稍等~ ~ ~"
-yum -y install lsof tree wget bash-completion vim lftp bind-utils  &>/dev/null
-yum -y install atop htop nethogs net-tools psmisc ntpdate nslookup &>/dev/null
+echo -e "\033[32m 安装系统需要的软件，请稍等~ ~ ~ \033[0m"
+yum -y install lsof tree wget vim  bash-completion lftp bind-utils  &>/dev/null 
+yum -y install atop htop nethogs net-tools libcurl-devel libxml2-devel openssl-devel unzip  psmisc ntpdate nslookup &>/dev/null 
+echo -e "\033[32m [安装常用工具] ==> OK \033[0m"
 }
 
-# **********************************************************
-init_dns() {
-	timedatectl set-timezone Asia/Shanghai
-	echo "nameserver 114.114.114.114" > /etc/resolv.conf	
-	echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-	chattr +i /etc/resolv.conf
-}
-
-# **********************************************************
-
-set_kernel_parameter() {
+init_kernel_parameter() {
+cat > /etc/sysctl.conf <<EOF
 fs.file-max = 999999
 kernel.sysrq = 0
 kernel.core_uses_pid = 1
@@ -123,28 +138,33 @@ net.core.wmem_max = 16777216
 net.core.netdev_max_backlog = 262144
 vm.swappiness = 10
 EOF
+sysctl -p /etc/sysctl.conf >/dev/null 2>&1
+echo -e "\033[32m [内核 优化] ==> OK \033[0m"
 }
 
 # **************************************************
-set_system_limit() {
+init_system_limit() {
 cat >> /etc/security/limits.conf <<EOF
 * soft nproc 65530
 * hard nproc 65530
 * soft nofile 65530
 * hard nofile 65530
 EOF
-
+ulimit -n 65535
+ulimit -u 20480
+echo -e "\033[32m [ulimits 配置] ==> OK \033[0m"
 cat >> /etc/profile <<EOF
 export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
 EOF
 source /etc/profile
 }
 
-
+main() {
 init_hostname
-init_service
-init_source
+init_security
+init_yumsource
 init_install_package
-init_dns
-init_kernel-parameter
+init_kernel_parameter
 init_system_limit
+}
+#main
