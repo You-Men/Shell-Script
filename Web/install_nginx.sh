@@ -1,5 +1,10 @@
-#!/usr/bin/bash
-version="nginx-1.12.2.tar.gz"
+#!/usr/bin/env bash
+# Author: ZhouJian
+# Mail: 18621048481@163.com
+# Time: 2019-9-3
+# Describe: CentOS 7 Install Nginx Source Code Script
+
+version="nginx-1.16.1.tar.gz"
 user="nginx"
 nginx=${version%.tar*}
 path=/usr/local/src/$nginx

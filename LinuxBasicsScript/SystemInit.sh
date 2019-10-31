@@ -167,4 +167,4 @@ init_install_package
 init_kernel_parameter
 init_system_limit
 }
-#main
+main
