@@ -1,5 +1,8 @@
 #/usr/bin/bash env
-#.bashrc
+# Author: ZhouJian
+# Mail: 18621048481@163.com
+# Time: 2019-9-3
+# Describe: CentOS 7 Install Mysql.tar Script
 #cd /root/.ssh/
 #if [ ! -e id_rsa.pub ];then
 #        ssh-keygen -t rsa -N '' -f id_rsa -q
@@ -26,7 +29,7 @@ sed -i '/^SELINUX=/ s/enforcing/disabled' /etc/ssh/sshd_config
 sed -i '/^GSSAPIAu/ s/yes/no/' /etc/ssh/sshd_config
 sed -i '/^#UseDNS/ {s/^#//;s/yes/no}' /etc/ssh/sshd_config
 yum -y install wget
-wget ftp://192.168.25.128/download_rpm/mysql-5.7.26-bin.tar.xz
+# wget ftp://192.168.25.128/download_rpm/mysql-5.7.26-bin.tar.xz
 
 id mysql > /dev/null
 if [ $? -eq 0 ];then
@@ -112,7 +115,7 @@ if [ ! -e id_rsa.pub ];then
 fi
 
 /usr/bin/expect <<-EOF
-        spawn ssh-copy-id  192.168.25.132
+        spawn ssh-copy-id  192.168.144.128
         expect {
                 "yes/no" { send "yes\r"; exp_continue }
                 "password:" { send "flying\r" }
@@ -120,10 +123,11 @@ fi
         expect eof
 EOF
 
-scp /tmp/all.sql 192.168.25.132:/tmp
+scp /tmp/all.sql 192.168.144.128:/tmp
+scp mysql-5.7.26-bin.tar.xz 192.168.144.128:
 
 mysql -uroot -pZHOUjian.20  <<EOF
-	grant replication slave on *.* to 'slave'@'192.168.25.%' identified by 'ZHOUjian.20';
+	grant replication slave on *.* to 'slave'@'192.168.144.%' identified by 'ZHOUjian.20';
 EOF
 
 if [ ! -d /back ];then
@@ -138,6 +142,6 @@ sed -i '/default/ a enforce_gtid_consistency=true' /etc/my.cnf
 mysqldctl restart
 
 mysql -uroot -pZHOUjian.20 <<EOF
-	grant all on bbs.* to phptest@'192.168.25.%' identified by 'ZHOUjian.20';
+	grant all on bbs.* to phptest@'192.168.144.%' identified by 'ZHOUjian.20';
 EOF
 

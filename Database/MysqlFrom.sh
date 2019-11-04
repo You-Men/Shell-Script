@@ -26,7 +26,7 @@ sed -i '/^SELINUX=/ s/enforcing/disabled' /etc/ssh/sshd_config
 sed -i '/^GSSAPIAu/ s/yes/no/' /etc/ssh/sshd_config
 sed -i '/^#UseDNS/ {s/^#//;s/yes/no}' /etc/ssh/sshd_config
 yum -y install wget
-wget ftp://192.168.25.128/download_rpm/mysql-5.7.26-bin.tar.xz
+# wget ftp://192.168.25.128/download_rpm/mysql-5.7.26-bin.tar.xz
 
 id mysql > /dev/null
 if [ $? -eq 0 ];then
@@ -88,8 +88,7 @@ mysqldctl restart
 
 Deplay
 
-ntpdate -b 192.168.25.133
-sleep 30
+ntpdate -b 192.168.144.134		# 同步Mysql主的时间
 mysql  -uroot -pZHOUjian.20 <  /tmp/all.sql
 
 if [ ! -d /back ];then
@@ -98,14 +97,14 @@ if [ ! -d /back ];then
 	chmod -R 775 /usr/local/mysqld/data
 fi
 sed -i '/default/ a log-bin=/back/master' /etc/my.cnf
-sed -i '/default/ a server_id=132' /etc/my.cnf
+sed -i '/default/ a server_id=134' /etc/my.cnf
 sed -i '/default/ a gtid_mode=ON' /etc/my.cnf
 sed -i '/default/ a enforce_gtid_consistency=true' /etc/my.cnf
 mysqldctl restart
 
 mysql -uroot  -pZHOUjian.20 <<EOF
 change master to
-master_host='192.168.25.133',
+master_host='192.168.144.134',
 master_user='slave',
 master_password='ZHOUjian.20',
 master_auto_position=0;
