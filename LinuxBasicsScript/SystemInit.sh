@@ -24,13 +24,9 @@ cat<<EOT
                     \\  \\ '_.   \\_ __\\ /__ _/   .-' /  /
                 ====='-.____'.___ \\_____/___.-'____.-'=====
                                   '=---='
-
-
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 建议系统                    CentOS7
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-             PS：请尽量使用纯净的CentOS7系统，我们会在服务器安装
-    [python3.6、Node、Openresty、MySQL57、Redis3、Dnsmasq、Docker、RabbitMQ]
 EOT
 echo -ne "\\033[m"
 
@@ -68,7 +64,7 @@ if [ ! -d /etc/yum.repos.d/backup ];then
 fi
 mv /etc/yum.repos.d/* /etc/yum.repos.d/backup 2>/dev/null
 
-if ! ping -c2 www.baidu.com &>/dev/null	
+if ! ping -c 2 baidu.com &>/dev/null	
 then
 	echo "您无法上外网，不能配置yum源"
 	exit	
